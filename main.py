@@ -26,25 +26,25 @@ import subprocess
 r = sr.Recognizer()
 
 def record_audio(ask = False):
-    with sr.Microphone() as source:
-        if ask:
-            ironstone_speak(ask)
-        r.adjust_for_ambient_noise(source)
-        audio = r.listen(source, timeout=60000000)
-        voice_data = ''
+    while True:
         try:
-            voice_data = r.recognize_google(audio)
-        except sr.UnknownValueError:
-            while(1):
+            with sr.Microphone() as source:
                 if ask:
                     ironstone_speak(ask)
-                r.adjust_for_ambient_noise(source)
-                audio = r.listen(source, timeout=60000000)
+                r = sr.Recognizer()
+                r.adjust_for_ambient_noise(source, duration=0.7)
+                audio = r.listen(source)
                 voice_data = ''
+                
+                
+                voice_data = r.recognize_google(audio)
                 return voice_data
+        except sr.UnknownValueError:
+                r = sr.Recognizer()
+                continue
         except sr.RequestError:
-            ironstone_speak('Sorry, my speech servise is down')
-        return voice_data
+                    ironstone_speak('Sorry, my speech servise is down')
+    
 
 
 def ironstone_speak(audio_string):
@@ -68,7 +68,7 @@ def respond(voice_data):
         ironstone_speak('Here is what I found for ' + search)
     if 'find location' in voice_data:
         location = record_audio('What is the location?')
-        url = 'https://google.nl/maps/place/' + location + '/&amp;'
+        url = 'https://google.com/maps/place/' + location + '/&amp;'
         webbrowser.get().open(url)
         ironstone_speak('Here is the location of ' + location)
     if 'open channel' in voice_data:
@@ -93,7 +93,7 @@ def respond(voice_data):
         ironstone_speak('playing' + song)
         
     if 'clock' in voice_data:
-        time = datetime.datetime.now().strftime('%H:%M')
+        time = datetime.datetime.now().strftime('%H:%M %p')
         ironstone_speak('Current time is ' + time)
         print(time)
     if 'learn' in voice_data:
@@ -101,10 +101,6 @@ def respond(voice_data):
         info = wikipedia.summary(person, 1)
         print(info)
         ironstone_speak(info)
-    if 'date' in voice_data:
-        ironstone_speak('Of course!')
-    if 'are you single' in voice_data:
-        ironstone_speak('I am single for you')
     if 'tell me a joke' in voice_data:
         ironstone_speak(pyjokes.get_joke())
     
