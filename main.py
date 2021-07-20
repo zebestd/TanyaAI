@@ -32,7 +32,7 @@ def record_audio(ask = False):
                 if ask:
                     ironstone_speak(ask)
                 r = sr.Recognizer()
-                r.adjust_for_ambient_noise(source, duration=0.7)
+                r.adjust_for_ambient_noise(source, duration=1)
                 audio = r.listen(source)
                 voice_data = ''
                 
@@ -43,7 +43,8 @@ def record_audio(ask = False):
                 r = sr.Recognizer()
                 continue
         except sr.RequestError:
-                    ironstone_speak('Sorry, my speech servise is down')
+                r = sr.Recognizer()
+                continue
     
 
 
@@ -57,12 +58,24 @@ def ironstone_speak(audio_string):
     os.remove(audio_file)
 
 def respond(voice_data):
+
+    if "go back" in voice_data:
+        ironstone_speak('All systems ready.')
+        while 1:
+            voice_data = record_audio()
+            respond(voice_data)
+
     if 'what is your name' in voice_data:
         ironstone_speak('My name is Tanya')
     if 'what time is it' in voice_data:
         ironstone_speak(ctime())
     if 'search' in voice_data:
         search = record_audio('What do you want to search for?')
+        if "go back" in search:
+            ironstone_speak('All systems ready.')
+            while 1:
+                voice_data = record_audio()
+                respond(voice_data)
         url = 'https://google.com/search?q=' + search
         webbrowser.get().open(url)
         ironstone_speak('Here is what I found for ' + search)
@@ -86,6 +99,11 @@ def respond(voice_data):
         webbrowser.get().open(url)
         ironstone_speak('Here is Google Mail')
 
+    if 'google.com' in voice_data:   
+        url = 'https://www.google.com/'
+        webbrowser.get().open(url)
+        ironstone_speak('Here is Google.com')
+
 
     if 'play' in voice_data:
         song = record_audio('Which video?')
@@ -104,11 +122,9 @@ def respond(voice_data):
     if 'tell me a joke' in voice_data:
         ironstone_speak(pyjokes.get_joke())
     
-    if 'hi' in voice_data:
-        ironstone_speak('Hello sir')
 
 
-    if 'hello' in voice_data:
+    if 'hello Tanya' in voice_data:
         ironstone_speak('Hello Tan')
 
     if 'how are you' in voice_data:
@@ -120,9 +136,14 @@ def respond(voice_data):
     if 'what do you love doing' in voice_data:
         ironstone_speak('I love helping you')
 
-
+    
+    if 'thank you Tanya' in voice_data:
+        ironstone_speak('Any time!')
 
     if 'Tanya you there' in voice_data:
+        ironstone_speak('For you sir always')
+
+    if 'Tanya you up' in voice_data:
         ironstone_speak('For you sir always')
 
     if 'weather' in voice_data:
@@ -139,9 +160,11 @@ def respond(voice_data):
         webbrowser.get().open(url)
         ironstone_speak('Here is Google Translate')
 
+       
 
 
-    if 'thank you Tanya' in voice_data:
+
+    if 'turn off' in voice_data:
         ironstone_speak('Exiting')
         exit()
 
@@ -152,6 +175,11 @@ def respond(voice_data):
     if "make a note" in voice_data:
         ironstone_speak("What would you like me to write down? ")
         write_down = record_audio()
+        if "go back" in write_down:
+            ironstone_speak('All systems ready.')
+            while 1:
+                voice_data = record_audio()
+                respond(voice_data)
         respond(write_down)
         ironstone_speak("I've made a note of that.")
         file_name = "ironstone" + "_note.txt"
@@ -162,7 +190,7 @@ def respond(voice_data):
 
 
 time.sleep(1)
-ironstone_speak('How can I help you?')
+ironstone_speak('All systems ready.')
 while 1:
     voice_data = record_audio()
     respond(voice_data)
